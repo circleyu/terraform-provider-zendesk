@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	client "github.com/nukosuke/go-zendesk/zendesk"
+	newClient "github.com/nukosuke/terraform-provider-zendesk/zendesk/client"
 )
 
 // https://developer.zendesk.com/rest_api/docs/core/organization_fields
@@ -294,11 +295,11 @@ func unmarshalOrganizationField(d identifiableGetterSetter) (client.Organization
 }
 
 func resourceZendeskOrganizationFieldCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	zd := meta.(*client.Client)
+	zd := meta.(*newClient.Client)
 	return createOrganizationField(ctx, d, zd)
 }
 
-func createOrganizationField(ctx context.Context, d identifiableGetterSetter, zd *client.Client) diag.Diagnostics {
+func createOrganizationField(ctx context.Context, d identifiableGetterSetter, zd *newClient.Client) diag.Diagnostics {
 	var diags diag.Diagnostics
 
 	tf, err := unmarshalOrganizationField(d)
@@ -323,11 +324,11 @@ func createOrganizationField(ctx context.Context, d identifiableGetterSetter, zd
 }
 
 func resourceZendeskOrganizationFieldRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	zd := meta.(*client.Client)
+	zd := meta.(*newClient.Client)
 	return readOrganizationField(ctx, d, zd)
 }
 
-func readOrganizationField(ctx context.Context, d identifiableGetterSetter, zd *client.Client) diag.Diagnostics {
+func readOrganizationField(ctx context.Context, d identifiableGetterSetter, zd *newClient.Client) diag.Diagnostics {
 	var diags diag.Diagnostics
 
 	id, err := strconv.ParseInt(d.Id(), 10, 64)
@@ -349,11 +350,11 @@ func readOrganizationField(ctx context.Context, d identifiableGetterSetter, zd *
 }
 
 func resourceZendeskOrganizationFieldUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	zd := meta.(*client.Client)
+	zd := meta.(*newClient.Client)
 	return updateOrganizationField(ctx, d, zd)
 }
 
-func updateOrganizationField(ctx context.Context, d identifiableGetterSetter, zd *client.Client) diag.Diagnostics {
+func updateOrganizationField(ctx context.Context, d identifiableGetterSetter, zd *newClient.Client) diag.Diagnostics {
 	var diags diag.Diagnostics
 
 	tf, err := unmarshalOrganizationField(d)
@@ -381,11 +382,11 @@ func updateOrganizationField(ctx context.Context, d identifiableGetterSetter, zd
 }
 
 func resourceZendeskOrganizationFieldDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	zd := meta.(*client.Client)
+	zd := meta.(*newClient.Client)
 	return deleteOrganizationField(ctx, d, zd)
 }
 
-func deleteOrganizationField(ctx context.Context, d identifiable, zd *client.Client) diag.Diagnostics {
+func deleteOrganizationField(ctx context.Context, d identifiable, zd *newClient.Client) diag.Diagnostics {
 	var diags diag.Diagnostics
 
 	id, err := strconv.ParseInt(d.Id(), 10, 64)
@@ -403,7 +404,7 @@ func deleteOrganizationField(ctx context.Context, d identifiable, zd *client.Cli
 
 // GetOrganizationField gets a specified ticket field
 // ref: https://developer.zendesk.com/rest_api/docs/support/organization_fields#show-ticket-field
-func GetOrganizationField(ctx context.Context, z *client.Client, organizationID int64) (client.OrganizationField, error) {
+func GetOrganizationField(ctx context.Context, z *newClient.Client, organizationID int64) (client.OrganizationField, error) {
 	var result struct {
 		OrganizationField client.OrganizationField `json:"organization_field"`
 	}
@@ -424,7 +425,7 @@ func GetOrganizationField(ctx context.Context, z *client.Client, organizationID 
 
 // UpdateOrganizationField updates a field with the specified ticket field
 // ref: https://developer.zendesk.com/rest_api/docs/support/organization_fields#update-ticket-field
-func UpdateOrganizationField(ctx context.Context, z *client.Client, ticketID int64, field client.OrganizationField) (client.OrganizationField, error) {
+func UpdateOrganizationField(ctx context.Context, z *newClient.Client, ticketID int64, field client.OrganizationField) (client.OrganizationField, error) {
 	var result, data struct {
 		OrganizationField client.OrganizationField `json:"organization_field"`
 	}
@@ -447,7 +448,7 @@ func UpdateOrganizationField(ctx context.Context, z *client.Client, ticketID int
 
 // DeleteOrganizationField deletes the specified ticket field
 // ref: https://developer.zendesk.com/rest_api/docs/support/organization_fields#Delete-ticket-field
-func DeleteOrganizationField(ctx context.Context, z *client.Client, ticketID int64) error {
+func DeleteOrganizationField(ctx context.Context, z *newClient.Client, ticketID int64) error {
 	err := z.Delete(ctx, fmt.Sprintf("/organization_fields/%d.json", ticketID))
 
 	if err != nil {

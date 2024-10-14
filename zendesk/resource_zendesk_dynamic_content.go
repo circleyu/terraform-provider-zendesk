@@ -9,25 +9,26 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	client "github.com/nukosuke/go-zendesk/zendesk"
+	newClient "github.com/nukosuke/terraform-provider-zendesk/zendesk/client"
 )
 
 func resourceZendeskDynamicContent() *schema.Resource {
 	return &schema.Resource{
 		Description: `Due to limitation of zendesk API creates a placeholder dynamic_content_variant with placeholder text`,
 		CreateContext: func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-			zd := meta.(*client.Client)
+			zd := meta.(*newClient.Client)
 			return createDynamicContent(ctx, d, zd)
 		},
 		ReadContext: func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-			zd := meta.(*client.Client)
+			zd := meta.(*newClient.Client)
 			return readDynamicContent(ctx, d, zd)
 		},
 		UpdateContext: func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-			zd := meta.(*client.Client)
+			zd := meta.(*newClient.Client)
 			return updateDynamicContent(ctx, d, zd)
 		},
 		DeleteContext: func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-			zd := meta.(*client.Client)
+			zd := meta.(*newClient.Client)
 			return deleteDynamicContent(ctx, d, zd)
 		},
 		Importer: &schema.ResourceImporter{

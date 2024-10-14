@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	client "github.com/nukosuke/go-zendesk/zendesk"
+	newClient "github.com/nukosuke/terraform-provider-zendesk/zendesk/client"
 )
 
 // https://developer.zendesk.com/rest_api/docs/core/user_fields
@@ -366,11 +366,11 @@ func unmarshalUserField(d identifiableGetterSetter) (UserField, error) {
 }
 
 func resourceZendeskUserFieldCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	zd := meta.(*client.Client)
+	zd := meta.(*newClient.Client)
 	return createUserField(ctx, d, zd)
 }
 
-func createUserField(ctx context.Context, d identifiableGetterSetter, zd *client.Client) diag.Diagnostics {
+func createUserField(ctx context.Context, d identifiableGetterSetter, zd *newClient.Client) diag.Diagnostics {
 	var diags diag.Diagnostics
 
 	tf, err := unmarshalUserField(d)
@@ -394,7 +394,7 @@ func createUserField(ctx context.Context, d identifiableGetterSetter, zd *client
 	return diags
 }
 
-func CreateUserField(ctx context.Context, z *client.Client, userField UserField) (UserField, error) {
+func CreateUserField(ctx context.Context, z *newClient.Client, userField UserField) (UserField, error) {
 	var data, result struct {
 		UserField UserField `json:"user_field"`
 	}
@@ -415,11 +415,11 @@ func CreateUserField(ctx context.Context, z *client.Client, userField UserField)
 }
 
 func resourceZendeskUserFieldRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	zd := meta.(*client.Client)
+	zd := meta.(*newClient.Client)
 	return readUserField(ctx, d, zd)
 }
 
-func readUserField(ctx context.Context, d identifiableGetterSetter, zd *client.Client) diag.Diagnostics {
+func readUserField(ctx context.Context, d identifiableGetterSetter, zd *newClient.Client) diag.Diagnostics {
 	var diags diag.Diagnostics
 
 	id, err := strconv.ParseInt(d.Id(), 10, 64)
@@ -448,11 +448,11 @@ func resourceZendeskUserFieldUpdate(ctx context.Context, d *schema.ResourceData,
 			)
 		}
 	}
-	zd := meta.(*client.Client)
+	zd := meta.(*newClient.Client)
 	return updateUserField(ctx, d, zd)
 }
 
-func updateUserField(ctx context.Context, d identifiableGetterSetter, zd *client.Client) diag.Diagnostics {
+func updateUserField(ctx context.Context, d identifiableGetterSetter, zd *newClient.Client) diag.Diagnostics {
 	var diags diag.Diagnostics
 
 	tf, err := unmarshalUserField(d)
@@ -482,11 +482,11 @@ func updateUserField(ctx context.Context, d identifiableGetterSetter, zd *client
 }
 
 func resourceZendeskUserFieldDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	zd := meta.(*client.Client)
+	zd := meta.(*newClient.Client)
 	return deleteUserField(ctx, d, zd)
 }
 
-func deleteUserField(ctx context.Context, d identifiable, zd *client.Client) diag.Diagnostics {
+func deleteUserField(ctx context.Context, d identifiable, zd *newClient.Client) diag.Diagnostics {
 	var diags diag.Diagnostics
 
 	id, err := strconv.ParseInt(d.Id(), 10, 64)
@@ -504,7 +504,7 @@ func deleteUserField(ctx context.Context, d identifiable, zd *client.Client) dia
 
 // GetUserField gets a specified ticket field
 // ref: https://developer.zendesk.com/rest_api/docs/support/user_fields#show-ticket-field
-func GetUserField(ctx context.Context, z *client.Client, userID int64) (UserField, error) {
+func GetUserField(ctx context.Context, z *newClient.Client, userID int64) (UserField, error) {
 	var result struct {
 		UserField UserField `json:"user_field"`
 	}
@@ -526,7 +526,7 @@ func GetUserField(ctx context.Context, z *client.Client, userID int64) (UserFiel
 
 // UpdateUserField updates a field with the specified ticket field
 // ref: https://developer.zendesk.com/rest_api/docs/support/user_fields#update-ticket-field
-func UpdateUserField(ctx context.Context, z *client.Client, ticketID int64, field UserField) (UserField, error) {
+func UpdateUserField(ctx context.Context, z *newClient.Client, ticketID int64, field UserField) (UserField, error) {
 	var result, data struct {
 		UserField UserField `json:"user_field"`
 	}
@@ -551,7 +551,7 @@ func UpdateUserField(ctx context.Context, z *client.Client, ticketID int64, fiel
 
 // DeleteUserField deletes the specified ticket field
 // ref: https://developer.zendesk.com/rest_api/docs/support/user_fields#Delete-ticket-field
-func DeleteUserField(ctx context.Context, z *client.Client, ticketID int64) error {
+func DeleteUserField(ctx context.Context, z *newClient.Client, ticketID int64) error {
 	err := z.Delete(ctx, fmt.Sprintf("/user_fields/%d.json", ticketID))
 
 	if err != nil {

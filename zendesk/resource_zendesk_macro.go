@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	client "github.com/nukosuke/go-zendesk/zendesk"
+	newClient "github.com/nukosuke/terraform-provider-zendesk/zendesk/client"
 )
 
 // https://developer.zendesk.com/api-reference/ticketing/business-rules/macros/
@@ -214,11 +215,11 @@ func unmarshalMacros(d identifiableGetterSetter) (client.Macro, error) {
 }
 
 func resourceZendeskMacrosCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	zd := meta.(*client.Client)
+	zd := meta.(*newClient.Client)
 	return createMacros(ctx, d, zd)
 }
 
-func createMacros(ctx context.Context, d identifiableGetterSetter, zd *client.Client) diag.Diagnostics {
+func createMacros(ctx context.Context, d identifiableGetterSetter, zd *newClient.Client) diag.Diagnostics {
 	var diags diag.Diagnostics
 
 	tf, err := unmarshalMacros(d)
@@ -243,11 +244,11 @@ func createMacros(ctx context.Context, d identifiableGetterSetter, zd *client.Cl
 }
 
 func resourceZendeskMacrosRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	zd := meta.(*client.Client)
+	zd := meta.(*newClient.Client)
 	return readMacros(ctx, d, zd)
 }
 
-func readMacros(ctx context.Context, d identifiableGetterSetter, zd *client.Client) diag.Diagnostics {
+func readMacros(ctx context.Context, d identifiableGetterSetter, zd *newClient.Client) diag.Diagnostics {
 	var diags diag.Diagnostics
 
 	id, err := strconv.ParseInt(d.Id(), 10, 64)
@@ -269,11 +270,11 @@ func readMacros(ctx context.Context, d identifiableGetterSetter, zd *client.Clie
 }
 
 func resourceZendeskMacrosUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	zd := meta.(*client.Client)
+	zd := meta.(*newClient.Client)
 	return updateMacros(ctx, d, zd)
 }
 
-func updateMacros(ctx context.Context, d identifiableGetterSetter, zd *client.Client) diag.Diagnostics {
+func updateMacros(ctx context.Context, d identifiableGetterSetter, zd *newClient.Client) diag.Diagnostics {
 	var diags diag.Diagnostics
 
 	tf, err := unmarshalMacros(d)
@@ -301,11 +302,11 @@ func updateMacros(ctx context.Context, d identifiableGetterSetter, zd *client.Cl
 }
 
 func resourceZendeskMacrosDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	zd := meta.(*client.Client)
+	zd := meta.(*newClient.Client)
 	return deleteMacros(ctx, d, zd)
 }
 
-func deleteMacros(ctx context.Context, d identifiable, zd *client.Client) diag.Diagnostics {
+func deleteMacros(ctx context.Context, d identifiable, zd *newClient.Client) diag.Diagnostics {
 	var diags diag.Diagnostics
 
 	id, err := strconv.ParseInt(d.Id(), 10, 64)

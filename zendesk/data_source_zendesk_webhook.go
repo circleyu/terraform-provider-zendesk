@@ -6,12 +6,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	client "github.com/nukosuke/go-zendesk/zendesk"
+	newClient "github.com/nukosuke/terraform-provider-zendesk/zendesk/client"
 )
 
 func dataSourceZendeskWebhook() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: func(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
-			zd := i.(*client.Client)
+			zd := i.(*newClient.Client)
 			return readWebhookDataSource(ctx, data, zd)
 		},
 

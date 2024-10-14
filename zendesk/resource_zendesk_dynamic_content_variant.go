@@ -9,27 +9,26 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-
-	client "github.com/nukosuke/go-zendesk/zendesk"
+	newClient "github.com/nukosuke/terraform-provider-zendesk/zendesk/client"
 )
 
 func resourceZendeskDynamicContentVariant() *schema.Resource {
 	return &schema.Resource{
 		Description: `This defines the variants of a dynamic_content. In order to delete this resource, need to remove the zendesk_dynamic_content resource and use terraform state rm for zendesk_dynamic_content_variant`,
 		CreateContext: func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-			zd := meta.(*client.Client)
+			zd := meta.(*newClient.Client)
 			return createDynamicContentVariant(ctx, d, zd)
 		},
 		ReadContext: func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-			zd := meta.(*client.Client)
+			zd := meta.(*newClient.Client)
 			return readDynamicContentVariant(ctx, d, zd)
 		},
 		UpdateContext: func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-			zd := meta.(*client.Client)
+			zd := meta.(*newClient.Client)
 			return updateDynamicContentVariant(ctx, d, zd)
 		},
 		DeleteContext: func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-			zd := meta.(*client.Client)
+			zd := meta.(*newClient.Client)
 			return deleteDynamicContentVariant(ctx, d, zd)
 		},
 		Importer: &schema.ResourceImporter{
@@ -137,7 +136,7 @@ func unmarshalDynamicContentVariant(d identifiableGetterSetter) (DynamicContentV
 	return dc, nil
 }
 
-func createDynamicContentVariant(ctx context.Context, d identifiableGetterSetter, zd *client.Client) diag.Diagnostics {
+func createDynamicContentVariant(ctx context.Context, d identifiableGetterSetter, zd *newClient.Client) diag.Diagnostics {
 	var diags diag.Diagnostics
 
 	dc, err := unmarshalDynamicContentVariant(d)
@@ -161,7 +160,7 @@ func createDynamicContentVariant(ctx context.Context, d identifiableGetterSetter
 	return diags
 }
 
-func readDynamicContentVariant(ctx context.Context, d identifiableGetterSetter, zd *client.Client) diag.Diagnostics {
+func readDynamicContentVariant(ctx context.Context, d identifiableGetterSetter, zd *newClient.Client) diag.Diagnostics {
 	var diags diag.Diagnostics
 
 	dcv_id, dc_id, err := split_id(d.Id())
@@ -189,7 +188,7 @@ func readDynamicContentVariant(ctx context.Context, d identifiableGetterSetter, 
 	return diags
 }
 
-func updateDynamicContentVariant(ctx context.Context, d identifiableGetterSetter, zd *client.Client) diag.Diagnostics {
+func updateDynamicContentVariant(ctx context.Context, d identifiableGetterSetter, zd *newClient.Client) diag.Diagnostics {
 	var diags diag.Diagnostics
 
 	dc, err := unmarshalDynamicContentVariant(d)
@@ -237,7 +236,7 @@ func join_id(dcv_id int64, dc_id int64) string {
 	return ids
 }
 
-func deleteDynamicContentVariant(ctx context.Context, d identifiableGetterSetter, zd *client.Client) diag.Diagnostics {
+func deleteDynamicContentVariant(ctx context.Context, d identifiableGetterSetter, zd *newClient.Client) diag.Diagnostics {
 	var diags diag.Diagnostics
 
 	dcv_id, dc_id, err := split_id(d.Id())
@@ -253,7 +252,7 @@ func deleteDynamicContentVariant(ctx context.Context, d identifiableGetterSetter
 	return diags
 }
 
-func Create(ctx context.Context, z *client.Client, field DynamicContentVariant) (DynamicContentVariant, error) {
+func Create(ctx context.Context, z *newClient.Client, field DynamicContentVariant) (DynamicContentVariant, error) {
 	var result struct {
 		DynamicContentVariant DynamicContentVariant `json:"variant"`
 	}
@@ -279,7 +278,7 @@ func Create(ctx context.Context, z *client.Client, field DynamicContentVariant) 
 	return result.DynamicContentVariant, nil
 }
 
-func Get(ctx context.Context, z *client.Client, dynamicContentItemID int64, viewID int64) (DynamicContentVariant, error) {
+func Get(ctx context.Context, z *newClient.Client, dynamicContentItemID int64, viewID int64) (DynamicContentVariant, error) {
 	var result struct {
 		DynamicContentVariant DynamicContentVariant `json:"variant"`
 	}
@@ -303,7 +302,7 @@ func Get(ctx context.Context, z *client.Client, dynamicContentItemID int64, view
 
 // UpdateDynamicContentVariant updates a field with the specified ticket field
 // ref: https://developer.zendesk.com/rest_api/docs/support/user_fields#update-ticket-field
-func Update(ctx context.Context, z *client.Client, ticketID int64, field DynamicContentVariant) (DynamicContentVariant, error) {
+func Update(ctx context.Context, z *newClient.Client, ticketID int64, field DynamicContentVariant) (DynamicContentVariant, error) {
 	var result struct {
 		DynamicContentVariant DynamicContentVariant `json:"variant"`
 	}
@@ -335,7 +334,7 @@ func Update(ctx context.Context, z *client.Client, ticketID int64, field Dynamic
 
 // DeleteDynamicContentVariant deletes the specified ticket field
 // ref: https://developer.zendesk.com/rest_api/docs/support/user_fields#Delete-ticket-field
-func Delete(ctx context.Context, z *client.Client, dynamicContentItemID int64, viewID int64) error {
+func Delete(ctx context.Context, z *newClient.Client, dynamicContentItemID int64, viewID int64) error {
 	fmt.Println("Deleting something")
 	url := fmt.Sprintf("/dynamic_content/items/%d/variants/%d.json", dynamicContentItemID, viewID)
 	fmt.Printf("delete at: %s", url)

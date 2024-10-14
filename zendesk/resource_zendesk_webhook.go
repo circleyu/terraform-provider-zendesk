@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	client "github.com/nukosuke/go-zendesk/zendesk"
+	newClient "github.com/nukosuke/terraform-provider-zendesk/zendesk/client"
 )
 
 // https://developer.zendesk.com/api-reference/webhooks/webhooks-api/webhooks
@@ -15,19 +16,19 @@ func resourceZendeskWebhook() *schema.Resource {
 	return &schema.Resource{
 		Description: "Provides a webhook resource.",
 		CreateContext: func(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
-			zd := i.(*client.Client)
+			zd := i.(*newClient.Client)
 			return createWebhook(ctx, data, zd)
 		},
 		ReadContext: func(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
-			zd := i.(*client.Client)
+			zd := i.(*newClient.Client)
 			return readWebhook(ctx, data, zd)
 		},
 		UpdateContext: func(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
-			zd := i.(*client.Client)
+			zd := i.(*newClient.Client)
 			return updateWebhook(ctx, data, zd)
 		},
 		DeleteContext: func(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
-			zd := i.(*client.Client)
+			zd := i.(*newClient.Client)
 			return deleteWebhook(ctx, data, zd)
 		},
 		Importer: &schema.ResourceImporter{

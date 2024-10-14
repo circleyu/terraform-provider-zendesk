@@ -96,7 +96,7 @@ func marshalTrigger(trigger client.Trigger, d identifiableGetterSetter) error {
 		"position":    trigger.Position,
 		"description": trigger.Description,
 	}
-	
+
 	var alls []map[string]interface{}
 	for _, v := range trigger.Conditions.All {
 		m := map[string]interface{}{

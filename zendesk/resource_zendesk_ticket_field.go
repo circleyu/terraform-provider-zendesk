@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	client "github.com/nukosuke/go-zendesk/zendesk"
+	newClient "github.com/nukosuke/terraform-provider-zendesk/zendesk/client"
 )
 
 // https://developer.zendesk.com/rest_api/docs/core/ticket_fields
@@ -357,7 +358,7 @@ func unmarshalTicketField(d identifiableGetterSetter) (client.TicketField, error
 }
 
 func resourceZendeskTicketFieldCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	zd := meta.(*client.Client)
+	zd := meta.(*newClient.Client)
 	return createTicketField(ctx, d, zd)
 }
 
@@ -386,7 +387,7 @@ func createTicketField(ctx context.Context, d identifiableGetterSetter, zd clien
 }
 
 func resourceZendeskTicketFieldRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	zd := meta.(*client.Client)
+	zd := meta.(*newClient.Client)
 	return readTicketField(ctx, d, zd)
 }
 
@@ -419,7 +420,7 @@ func resourceZendeskTicketFieldUpdate(ctx context.Context, d *schema.ResourceDat
 			)
 		}
 	}
-	zd := meta.(*client.Client)
+	zd := meta.(*newClient.Client)
 	return updateTicketField(ctx, d, zd)
 }
 
@@ -451,7 +452,7 @@ func updateTicketField(ctx context.Context, d identifiableGetterSetter, zd clien
 }
 
 func resourceZendeskTicketFieldDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	zd := meta.(*client.Client)
+	zd := meta.(*newClient.Client)
 	return deleteTicketField(ctx, d, zd)
 }
 

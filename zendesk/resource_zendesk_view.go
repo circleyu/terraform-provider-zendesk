@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	client "github.com/nukosuke/go-zendesk/zendesk"
+	newClient "github.com/nukosuke/terraform-provider-zendesk/zendesk/client"
 )
 
 // https://developer.zendesk.com/api-reference/ticketing/business-rules/views/
@@ -285,11 +285,11 @@ func unmarshalViews(d identifiableGetterSetter) (View, error) {
 }
 
 func resourceZendeskViewsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	zd := meta.(*client.Client)
+	zd := meta.(*newClient.Client)
 	return createViews(ctx, d, zd)
 }
 
-func createViews(ctx context.Context, d identifiableGetterSetter, zd *client.Client) diag.Diagnostics {
+func createViews(ctx context.Context, d identifiableGetterSetter, zd *newClient.Client) diag.Diagnostics {
 	var diags diag.Diagnostics
 
 	tf, err := unmarshalViews(d)
@@ -314,11 +314,11 @@ func createViews(ctx context.Context, d identifiableGetterSetter, zd *client.Cli
 }
 
 func resourceZendeskViewsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	zd := meta.(*client.Client)
+	zd := meta.(*newClient.Client)
 	return readViews(ctx, d, zd)
 }
 
-func readViews(ctx context.Context, d identifiableGetterSetter, zd *client.Client) diag.Diagnostics {
+func readViews(ctx context.Context, d identifiableGetterSetter, zd *newClient.Client) diag.Diagnostics {
 	var diags diag.Diagnostics
 
 	id, err := strconv.ParseInt(d.Id(), 10, 64)
@@ -340,11 +340,11 @@ func readViews(ctx context.Context, d identifiableGetterSetter, zd *client.Clien
 }
 
 func resourceZendeskViewsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	zd := meta.(*client.Client)
+	zd := meta.(*newClient.Client)
 	return updateViews(ctx, d, zd)
 }
 
-func updateViews(ctx context.Context, d identifiableGetterSetter, zd *client.Client) diag.Diagnostics {
+func updateViews(ctx context.Context, d identifiableGetterSetter, zd *newClient.Client) diag.Diagnostics {
 	var diags diag.Diagnostics
 
 	tf, err := unmarshalViews(d)
@@ -404,11 +404,11 @@ func mapViewToViewCreateOrUpdate(view View) ViewCreateOrUpdate {
 }
 
 func resourceZendeskViewsDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	zd := meta.(*client.Client)
+	zd := meta.(*newClient.Client)
 	return deleteViews(ctx, d, zd)
 }
 
-func deleteViews(ctx context.Context, d identifiable, zd *client.Client) diag.Diagnostics {
+func deleteViews(ctx context.Context, d identifiable, zd *newClient.Client) diag.Diagnostics {
 	var diags diag.Diagnostics
 
 	id, err := strconv.ParseInt(d.Id(), 10, 64)
@@ -518,7 +518,7 @@ func viewConditionSchema(desc string) *schema.Schema {
 	}
 }
 
-func CreateView(ctx context.Context, z *client.Client, field View) (View, error) {
+func CreateView(ctx context.Context, z *newClient.Client, field View) (View, error) {
 	var result struct {
 		View View `json:"view"`
 	}
@@ -540,7 +540,7 @@ func CreateView(ctx context.Context, z *client.Client, field View) (View, error)
 	return result.View, nil
 }
 
-func GetView(ctx context.Context, z *client.Client, viewID int64) (View, error) {
+func GetView(ctx context.Context, z *newClient.Client, viewID int64) (View, error) {
 	var result struct {
 		View View `json:"view"`
 	}
@@ -563,7 +563,7 @@ func GetView(ctx context.Context, z *client.Client, viewID int64) (View, error) 
 
 // UpdateView updates a field with the specified ticket field
 // ref: https://developer.zendesk.com/rest_api/docs/support/user_fields#update-ticket-field
-func UpdateView(ctx context.Context, z *client.Client, ticketID int64, field View) (View, error) {
+func UpdateView(ctx context.Context, z *newClient.Client, ticketID int64, field View) (View, error) {
 	var result struct {
 		View View `json:"view"`
 	}
@@ -595,7 +595,7 @@ func UpdateView(ctx context.Context, z *client.Client, ticketID int64, field Vie
 
 // DeleteView deletes the specified ticket field
 // ref: https://developer.zendesk.com/rest_api/docs/support/user_fields#Delete-ticket-field
-func DeleteView(ctx context.Context, z *client.Client, viewID int64) error {
+func DeleteView(ctx context.Context, z *newClient.Client, viewID int64) error {
 	err := z.Delete(ctx, fmt.Sprintf("/views/%d.json", viewID))
 
 	if err != nil {

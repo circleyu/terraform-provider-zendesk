@@ -2,14 +2,14 @@ package zendesk
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strconv"
-	"encoding/json"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	client "github.com/nukosuke/go-zendesk/zendesk"
+	newClient "github.com/nukosuke/terraform-provider-zendesk/zendesk/client"
 )
 
 // https://developer.zendesk.com/rest_api/docs/core/ticket_fields
@@ -31,9 +31,9 @@ func resourceZendeskTriggerCategory() *schema.Resource {
 				Required:    true,
 			},
 			"position": {
-				Description: "The relative position of the trigger category",
-				Type:        schema.TypeInt,
-				Optional:    true,
+				Description:  "The relative position of the trigger category",
+				Type:         schema.TypeInt,
+				Optional:     true,
 				ValidateFunc: validation.IntAtLeast(0),
 				Computed:     true,
 			},
@@ -44,8 +44,8 @@ func resourceZendeskTriggerCategory() *schema.Resource {
 // marshalTriggerCategory encodes the provided ticket field into the provided resource data
 func marshalTriggerCategory(triggerCategory TriggerCategory, d identifiableGetterSetter) error {
 	fields := map[string]interface{}{
-		"name":                   triggerCategory.Name,
-		"position":               triggerCategory.Position,
+		"name":     triggerCategory.Name,
+		"position": triggerCategory.Position,
 	}
 
 	err := setSchemaFields(d, fields)
@@ -80,11 +80,11 @@ func unmarshalTriggerCategory(d identifiableGetterSetter) (TriggerCategory, erro
 }
 
 func resourceZendeskTriggerCategoryCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	zd := meta.(*client.Client)
+	zd := meta.(*newClient.Client)
 	return createTriggerCategory(ctx, d, zd)
 }
 
-func createTriggerCategory(ctx context.Context, d identifiableGetterSetter, zd *client.Client) diag.Diagnostics {
+func createTriggerCategory(ctx context.Context, d identifiableGetterSetter, zd *newClient.Client) diag.Diagnostics {
 	var diags diag.Diagnostics
 
 	fmt.Println("Creating Trigger Category")
@@ -110,11 +110,11 @@ func createTriggerCategory(ctx context.Context, d identifiableGetterSetter, zd *
 }
 
 func resourceZendeskTriggerCategoryRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	zd := meta.(*client.Client)
+	zd := meta.(*newClient.Client)
 	return readTriggerCategory(ctx, d, zd)
 }
 
-func readTriggerCategory(ctx context.Context, d identifiableGetterSetter, zd *client.Client) diag.Diagnostics {
+func readTriggerCategory(ctx context.Context, d identifiableGetterSetter, zd *newClient.Client) diag.Diagnostics {
 	var diags diag.Diagnostics
 
 	id, err := strconv.ParseInt(d.Id(), 10, 64)
@@ -136,11 +136,11 @@ func readTriggerCategory(ctx context.Context, d identifiableGetterSetter, zd *cl
 }
 
 func resourceZendeskTriggerCategoryUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	zd := meta.(*client.Client)
+	zd := meta.(*newClient.Client)
 	return updateTriggerCategory(ctx, d, zd)
 }
 
-func updateTriggerCategory(ctx context.Context, d identifiableGetterSetter, zd *client.Client) diag.Diagnostics {
+func updateTriggerCategory(ctx context.Context, d identifiableGetterSetter, zd *newClient.Client) diag.Diagnostics {
 	var diags diag.Diagnostics
 
 	tf, err := unmarshalTriggerCategory(d)
@@ -168,11 +168,11 @@ func updateTriggerCategory(ctx context.Context, d identifiableGetterSetter, zd *
 }
 
 func resourceZendeskTriggerCategoryDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	zd := meta.(*client.Client)
+	zd := meta.(*newClient.Client)
 	return deleteTriggerCategory(ctx, d, zd)
 }
 
-func deleteTriggerCategory(ctx context.Context, d identifiable, zd *client.Client) diag.Diagnostics {
+func deleteTriggerCategory(ctx context.Context, d identifiable, zd *newClient.Client) diag.Diagnostics {
 	var diags diag.Diagnostics
 
 	id, err := strconv.ParseInt(d.Id(), 10, 64)
@@ -189,17 +189,16 @@ func deleteTriggerCategory(ctx context.Context, d identifiable, zd *client.Clien
 }
 
 type (
-	// TriggerCategory has a certain structure in Get & Different structure in 
+	// TriggerCategory has a certain structure in Get & Different structure in
 	// Put/Post
 	TriggerCategory struct {
-		ID          int64     `json:"id,string,omitempty"`
-		Position    int64     `json:"position"`
-		Name       string    `json:"name"`
+		ID       int64  `json:"id,string,omitempty"`
+		Position int64  `json:"position"`
+		Name     string `json:"name"`
 	}
 )
 
-
-func CreateTriggerCategory(ctx context.Context, z *client.Client, triggerCategory TriggerCategory) (TriggerCategory, error) {
+func CreateTriggerCategory(ctx context.Context, z *newClient.Client, triggerCategory TriggerCategory) (TriggerCategory, error) {
 	var data, result struct {
 		TriggerCategory TriggerCategory `json:"trigger_category"`
 	}
@@ -219,7 +218,7 @@ func CreateTriggerCategory(ctx context.Context, z *client.Client, triggerCategor
 	return result.TriggerCategory, nil
 }
 
-func GetTriggerCategory(ctx context.Context, z *client.Client, TriggerCategoryID int64) (TriggerCategory, error) {
+func GetTriggerCategory(ctx context.Context, z *newClient.Client, TriggerCategoryID int64) (TriggerCategory, error) {
 	var result struct {
 		TriggerCategory TriggerCategory `json:"trigger_category"`
 	}
@@ -240,7 +239,7 @@ func GetTriggerCategory(ctx context.Context, z *client.Client, TriggerCategoryID
 
 // UpdateTriggerCategory updates a field with the specified ticket field
 // ref: https://developer.zendesk.com/rest_api/docs/support/user_fields#update-ticket-field
-func UpdateTriggerCategory(ctx context.Context, z *client.Client, ticketID int64, triggerCategory TriggerCategory) (TriggerCategory, error) {
+func UpdateTriggerCategory(ctx context.Context, z *newClient.Client, ticketID int64, triggerCategory TriggerCategory) (TriggerCategory, error) {
 	var data, result struct {
 		TriggerCategory TriggerCategory `json:"trigger_category"`
 	}
@@ -261,7 +260,7 @@ func UpdateTriggerCategory(ctx context.Context, z *client.Client, ticketID int64
 	return result.TriggerCategory, err
 }
 
-func DeleteTriggerCategory(ctx context.Context, z *client.Client, TriggerCategoryID int64) error {
+func DeleteTriggerCategory(ctx context.Context, z *newClient.Client, TriggerCategoryID int64) error {
 	err := z.Delete(ctx, fmt.Sprintf("/trigger_categories/%d.json", TriggerCategoryID))
 
 	if err != nil {

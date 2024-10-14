@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	client "github.com/nukosuke/go-zendesk/zendesk"
+	newClient "github.com/nukosuke/terraform-provider-zendesk/zendesk/client"
 )
 
 const (
@@ -94,5 +95,8 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	}
 	zd.SetCredential(client.NewAPITokenCredential(config.Email, config.Token))
 
-	return zd, diags
+	newZd := &newClient.Client{
+		Client: *zd,
+	}
+	return newZd, diags
 }
