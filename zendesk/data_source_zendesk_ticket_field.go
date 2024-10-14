@@ -7,12 +7,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/nukosuke/go-zendesk/zendesk"
+	"github.com/nukosuke/terraform-provider-zendesk/zendesk/client"
 )
 
 func dataSourceZendeskTicketField() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: func(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
-			zd := i.(*zendesk.Client)
+			zd := i.(*client.Client)
 			return readTicketFieldDataSource(ctx, data, zd)
 		},
 

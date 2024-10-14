@@ -24,12 +24,12 @@ resource "zendesk_dynamic_content" "better" {
   name = "better"
 }
 
-resource "zendesk_dynamic_content_variant" "better_content" {
-  content                 = "Some data here is template good"
-  locale_id               = 1
-  default                 = true
-  dynamic_content_item_id = 18847895265170
-}
+# resource "zendesk_dynamic_content_variant" "better_content" {
+#   content                 = "Some data here is template good"
+#   locale_id               = 1
+#   default                 = true
+#   dynamic_content_item_id = 18847895265170
+# }
 
 resource "zendesk_dynamic_content_variant" "foobaranother" {
   content                 = "foo bar is here right??? new"
@@ -54,33 +54,38 @@ resource "zendesk_macro" "temp_utkarsh_test_macro" {
   restrictions = [18651233156242, 17784599337874]
 }
 
+data "zendesk_ticket_field" "assignee" {
+  type = "assignee"
+}
+
 resource "zendesk_ticket_field" "checkbox-field3" {
   title                 = "Checkbox Field (this is a test)"
   type                  = "regexp"
   regexp_for_validation = "^foobar$"
-  description           = "test here something"
+  description           = "tesft here something"
   agent_description     = "agent description change here"
   required              = true
 }
 
-resource "zendesk_user_field" "tagger-field" {
-  title = "Tagger Field"
-  type  = "dropdown"
-  key   = "foobar"
 
-  custom_field_option {
-    id    = 20907892899730
-    name  = "option b here foo bar"
-    value = "optb"
-  }
-  custom_field_option {
-    id    = 20909205605650
-    name  = "option a"
-    value = "opta"
-  }
+# resource "zendesk_user_field" "tagger-field" {
+#   title = "Tagger Field"
+#   type  = "dropdown"
+#   key   = "foobar"
+
+#   custom_field_option {
+#     id    = 20907892899730
+#     name  = "option b here foo bar"
+#     value = "optb"
+#   }
+#   custom_field_option {
+#     id    = 20909205605650
+#     name  = "option a"
+#     value = "opta"
+#   }
 
 
-}
+# }
 
 
 resource "zendesk_webhook" "example-basic-auth-webhook" {
@@ -119,9 +124,24 @@ resource "zendesk_webhook" "example-basic-auth-webhook" {
 
 # resource "zendesk_ticket_form" "form-1" {
 #   name = "Form 1"
+#   agent_conditions {
+#     parent_field_id = 360000035929
+#     value           = "foobar"
+#     child_fields {
+#       id          = 33735105
+#       is_required = false
+#       required_on_statuses {
+#         type     = "SOME_STATUSES"
+#         statuses = ["new"]
+#       }
+#     }
+#   }
+
 #   ticket_field_ids = [
 #     20713391817234,
 #     20713391818514,
+#     360000035929,
+#     33735105,
 #     20713412708626,
 #     20713391817490,
 #     20713391816338,
@@ -136,3 +156,31 @@ resource "zendesk_webhook" "example-basic-auth-webhook" {
 #   ]
 # }
 
+
+
+resource "zendesk_automation" "auto-close-automation" {
+  title  = "Close ticket 4 days after status is set to solved"
+  active = true
+
+  all {
+    field    = "status"
+    operator = "is"
+    value    = "new"
+  }
+  any {
+    field    = "status"
+    operator = "is"
+    value    = "new"
+  }
+
+  any {
+    field    = "current_tags"
+    operator = "includes"
+    value    = "wiedervorlage_aktiv"
+  }
+
+  action {
+    field = "status"
+    value = "closed"
+  }
+}
