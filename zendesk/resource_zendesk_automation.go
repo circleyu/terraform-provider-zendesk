@@ -152,6 +152,10 @@ func unmarshalAutomation(d identifiableGetterSetter) (client.Automation, error) 
 		automation.Title = v.(string)
 	}
 
+	if v, ok := d.GetOk("position"); ok {
+		automation.Position = int64(v.(int))
+	}
+
 	if v, ok := d.GetOk("active"); ok {
 		automation.Active = v.(bool)
 	}

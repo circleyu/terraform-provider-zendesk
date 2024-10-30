@@ -55,6 +55,7 @@ func resourceZendeskTrigger() *schema.Resource {
 			"position": {
 				Description: "Position of the trigger, determines the order they will execute in.",
 				Type:        schema.TypeInt,
+				Optional:    true,
 				Computed:    true,
 			},
 			// Both the "all" and "any" parameter are optional, but at least one of them must be supplied
@@ -156,6 +157,10 @@ func unmarshalTrigger(d identifiableGetterSetter) (client.Trigger, error) {
 			return trg, fmt.Errorf("could not parse trigger id %s: %v", v, err)
 		}
 		trg.ID = id
+	}
+
+	if v, ok := d.GetOk("position"); ok {
+		trg.Position = int64(v.(int))
 	}
 
 	if v, ok := d.GetOk("title"); ok {
