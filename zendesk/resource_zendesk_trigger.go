@@ -71,8 +71,9 @@ func resourceZendeskTrigger() *schema.Resource {
 							Required: true,
 						},
 						"value": {
-							Type:     schema.TypeString,
-							Required: true,
+							Description: "Can be a single string value or a jsonencode'ed list",
+							Type:        schema.TypeString,
+							Required:    true,
 						},
 					},
 				},

@@ -2,14 +2,16 @@ package zendesk
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	client "github.com/nukosuke/go-zendesk/zendesk"
 	newClient "github.com/nukosuke/terraform-provider-zendesk/zendesk/client"
+	"github.com/nukosuke/terraform-provider-zendesk/zendesk/models"
 )
 
 // https://developer.zendesk.com/api-reference/ticketing/business-rules/macros/
@@ -41,7 +43,7 @@ func resourceZendeskMacro() *schema.Resource {
 							Required:    true,
 						},
 						"value": {
-							Description: "The new value of the field.",
+							Description: "The new value of the field. Can be a single string value or a jsonencode'ed list",
 							Type:        schema.TypeString,
 							Required:    true,
 						},
@@ -87,7 +89,7 @@ func resourceZendeskMacro() *schema.Resource {
 }
 
 // marshalMacros encodes the provided user field into the provided resource data
-func marshalMacros(field client.Macro, d identifiableGetterSetter) error {
+func marshalMacros(field models.Macro, d identifiableGetterSetter) error {
 	fields := map[string]interface{}{
 		"url":         field.URL,
 		"title":       field.Title,
@@ -118,23 +120,23 @@ func marshalMacros(field client.Macro, d identifiableGetterSetter) error {
 	var actions []map[string]interface{}
 	for _, action := range field.Actions {
 
-		// If the field value is a string, leave it be
+		// If the macro	action value is a string, leave it be
 		// If it's a list, marshal it to a string
-		// var stringVal string
-		// switch action.Value.(type) {
-		// case []interface{}:
-		// 	tmp, err := json.Marshal(action.Value)
-		// 	if err != nil {
-		// 		return fmt.Errorf("error decoding field action value: %s", err)
-		// 	}
-		// 	stringVal = string(tmp)
-		// case string:
-		// 	stringVal = action.Value.(string)
-		// }
+		var stringVal string
+		switch action.Value.(type) {
+		case []interface{}:
+			tmp, err := json.Marshal(action.Value)
+			if err != nil {
+				return fmt.Errorf("error decoding macro action value: %s", err)
+			}
+			stringVal = string(tmp)
+		case string:
+			stringVal = action.Value.(string)
+		}
 
 		m := map[string]interface{}{
 			"field": action.Field,
-			"value": action.Value,
+			"value": stringVal,
 		}
 		actions = append(actions, m)
 	}
@@ -149,8 +151,8 @@ func marshalMacros(field client.Macro, d identifiableGetterSetter) error {
 }
 
 // unmarshalMacros parses the provided ResourceData and returns a user field
-func unmarshalMacros(d identifiableGetterSetter) (client.Macro, error) {
-	tf := client.Macro{}
+func unmarshalMacros(d identifiableGetterSetter) (models.Macro, error) {
+	tf := models.Macro{}
 
 	if v := d.Id(); v != "" {
 		id, err := strconv.ParseInt(v, 10, 64)
@@ -196,16 +198,27 @@ func unmarshalMacros(d identifiableGetterSetter) (client.Macro, error) {
 
 	if v, ok := d.GetOk("action"); ok {
 		macroActions := v.(*schema.Set).List()
-		actions := []client.MacroAction{}
+		actions := []models.MacroAction{}
 		for _, a := range macroActions {
 			action, ok := a.(map[string]interface{})
 			if !ok {
 				return tf, fmt.Errorf("could not parse actions for macro %v", tf)
 			}
 
-			actions = append(actions, client.MacroAction{
+			// If the action value is a list, unmarshal it
+			var actionValue interface{}
+			if strings.HasPrefix(action["value"].(string), "[") {
+				err := json.Unmarshal([]byte(action["value"].(string)), &actionValue)
+				if err != nil {
+					return tf, fmt.Errorf("error unmarshalling macro action value: %s", err)
+				}
+			} else {
+				actionValue = action["value"]
+			}
+
+			actions = append(actions, models.MacroAction{
 				Field: action["field"].(string),
-				Value: action["value"].(string),
+				Value: actionValue,
 			})
 		}
 		tf.Actions = actions

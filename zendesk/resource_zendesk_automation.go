@@ -67,7 +67,7 @@ func resourceZendeskAutomation() *schema.Resource {
 							Required:    true,
 						},
 						"value": {
-							Description: "The new value of the field.",
+							Description: "The new value of the field. Can be a single string value or a jsonencode'ed list",
 							Type:        schema.TypeString,
 							Required:    true,
 						},
