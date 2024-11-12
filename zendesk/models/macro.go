@@ -2,6 +2,11 @@ package models
 
 import "time"
 
+type MacroPosition struct {
+	ID       int64 `json:"id,omitempty"`
+	Position int   `json:"position,omitempty"`
+}
+
 type Macro struct {
 	Actions     []MacroAction `json:"actions"`
 	Active      bool          `json:"active"`

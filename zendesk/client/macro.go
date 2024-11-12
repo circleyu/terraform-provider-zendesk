@@ -17,6 +17,7 @@ type MacroAPI interface {
 	DeleteMacro(ctx context.Context, id int64) error
 	UpdateMacro(ctx context.Context, id int64, form models.Macro) (models.Macro, error)
 	GetMacro(ctx context.Context, id int64) (models.Macro, error)
+	UpdateMacroPosition(ctx context.Context, id int64, macro models.MacroPosition) error
 }
 
 // GetMacros fetches macros
@@ -95,7 +96,13 @@ func (z *Client) UpdateMacro(ctx context.Context, id int64, form models.Macro) (
 		Macro models.Macro `json:"macro"`
 	}
 
+	z.UpdateMacroPosition(ctx, id, models.MacroPosition{
+		ID:       id,
+		Position: form.Position,
+	})
+
 	data.Macro = form
+	fmt.Printf("\nUpdating Macro position to %d\n", data.Macro.Position)
 	body, err := z.Put(ctx, fmt.Sprintf("/macros/%d.json", id), data)
 	if err != nil {
 		return models.Macro{}, err
@@ -107,6 +114,28 @@ func (z *Client) UpdateMacro(ctx context.Context, id int64, form models.Macro) (
 	}
 
 	return result.Macro, nil
+}
+
+func (z *Client) UpdateMacroPosition(ctx context.Context, id int64, macro models.MacroPosition) error {
+	var data, result struct {
+		Macros []models.MacroPosition `json:"macros"`
+	}
+
+	data.Macros = append(data.Macros, macro)
+
+	body, err := z.Put(ctx, "/macros/update_many", data)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(body, &result)
+	if err != nil {
+		return err
+	}
+
+	fmt.Sprintf("\nUpdated position to %d for macro %d", macro.Position, macro.ID)
+
+	return nil
 }
 
 // DeleteMacro deletes the specified macro
