@@ -137,8 +137,8 @@ func resourceZendeskTicketField() *schema.Resource {
 			},
 			// https://developer.zendesk.com/api-reference/ticketing/tickets/ticket_fields/#updating-drop-down-field-options
 			"custom_field_option": {
-				Description: `Required and presented for a custom ticket field of type "multiselect" or "tagger".`,
-				Type:        schema.TypeSet,
+				Description: `Required and presented for a custom ticket field of type "multiselect" or "tagger". Order is preserved from the way the custom_field_options are configured, however please pass "id" field, if you need to change order of items after creation, otherwise the update will replace name, value for the id in the same position, resulting in wrong field option wherever it is used.`,
+				Type:        schema.TypeList,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
@@ -154,6 +154,7 @@ func resourceZendeskTicketField() *schema.Resource {
 						"id": {
 							Description: "Custom field option id.",
 							Type:        schema.TypeInt,
+							Optional:    true,
 							Computed:    true,
 						},
 					},
@@ -318,7 +319,7 @@ func unmarshalTicketField(d identifiableGetterSetter) (client.TicketField, error
 	}
 
 	if v, ok := d.GetOk("custom_field_option"); ok {
-		options := v.(*schema.Set).List()
+		options := v.([]interface{})
 		customFieldOptions := make([]client.CustomFieldOption, 0)
 		for _, o := range options {
 			option, ok := o.(map[string]interface{})
