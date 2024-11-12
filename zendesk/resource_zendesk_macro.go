@@ -9,7 +9,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	newClient "github.com/nukosuke/terraform-provider-zendesk/zendesk/client"
 	"github.com/nukosuke/terraform-provider-zendesk/zendesk/models"
 )
@@ -63,12 +62,10 @@ func resourceZendeskMacro() *schema.Resource {
 				Computed:    true,
 			},
 			"position": {
-				Description: "The relative position of the user field on a ticket. Note that for accounts with ticket forms, positions are controlled by the different forms.",
+				Description: "IMPORTANT! in order for this to take affect an update on the resource is necessary, since only that triggers a call to update position",
 				Type:        schema.TypeInt,
 				Optional:    true,
-				// positions 0 to 7 are reserved for system fields
-				ValidateFunc: validation.IntAtLeast(8),
-				Computed:     true,
+				Computed:    true,
 			},
 			"active": {
 				Description: "Whether this field is available.",

@@ -147,7 +147,6 @@ func resourceZendeskTicketField() *schema.Resource {
 							Required:    true,
 						},
 						"value": {
-							Description: "Custom field option value.",
 							Type:        schema.TypeString,
 							Required:    true,
 						},
