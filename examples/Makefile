@@ -8,4 +8,6 @@ install: ../main.go ../zendesk/*.go
 plan: concat install dev.tfrc
 	TF_CLI_CONFIG_FILE=dev.tfrc terraform plan
 apply: concat install dev.tfrc
-	TF_CLI_CONFIG_FILE=dev.tfrc terraform apply
+	TF_CLI_CONFIG_FILE=dev.tfrc terraform apply -auto-approve
+destroy: concat install dev.tfrc
+	TF_CLI_CONFIG_FILE=dev.tfrc terraform destroy

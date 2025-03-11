@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	client "github.com/nukosuke/go-zendesk/zendesk"
+	newClient "github.com/nukosuke/terraform-provider-zendesk/zendesk/client"
 )
 
 // https://developer.zendesk.com/api-reference/ticketing/account-configuration/brands/
@@ -14,19 +15,19 @@ func resourceZendeskBrand() *schema.Resource {
 	return &schema.Resource{
 		Description: "Provides a brand resource.",
 		CreateContext: func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-			zd := meta.(*client.Client)
+			zd := meta.(*newClient.Client)
 			return createBrand(ctx, d, zd)
 		},
 		ReadContext: func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-			zd := meta.(*client.Client)
+			zd := meta.(*newClient.Client)
 			return readBrand(ctx, d, zd)
 		},
 		UpdateContext: func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-			zd := meta.(*client.Client)
+			zd := meta.(*newClient.Client)
 			return updateBrand(ctx, d, zd)
 		},
 		DeleteContext: func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-			zd := meta.(*client.Client)
+			zd := meta.(*newClient.Client)
 			return deleteBrand(ctx, d, zd)
 		},
 

@@ -41,6 +41,11 @@ func resourceZendeskTrigger() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 			},
+			"category_id": {
+				Description: "The title of the trigger.",
+				Type:        schema.TypeString,
+				Optional:    true,
+			},
 			"active": {
 				Description: "Whether the trigger is active.",
 				Type:        schema.TypeBool,
@@ -50,6 +55,7 @@ func resourceZendeskTrigger() *schema.Resource {
 			"position": {
 				Description: "Position of the trigger, determines the order they will execute in.",
 				Type:        schema.TypeInt,
+				Optional:    true,
 				Computed:    true,
 			},
 			// Both the "all" and "any" parameter are optional, but at least one of them must be supplied
@@ -65,8 +71,9 @@ func resourceZendeskTrigger() *schema.Resource {
 							Required: true,
 						},
 						"value": {
-							Type:     schema.TypeString,
-							Required: true,
+							Description: "Can be a single string value or a jsonencode'ed list",
+							Type:        schema.TypeString,
+							Required:    true,
 						},
 					},
 				},
@@ -86,6 +93,7 @@ func resourceZendeskTrigger() *schema.Resource {
 func marshalTrigger(trigger client.Trigger, d identifiableGetterSetter) error {
 	fields := map[string]interface{}{
 		"title":       trigger.Title,
+		"category_id": trigger.CategoryID,
 		"active":      trigger.Active,
 		"position":    trigger.Position,
 		"description": trigger.Description,
@@ -152,6 +160,10 @@ func unmarshalTrigger(d identifiableGetterSetter) (client.Trigger, error) {
 		trg.ID = id
 	}
 
+	if v, ok := d.GetOk("position"); ok {
+		trg.Position = int64(v.(int))
+	}
+
 	if v, ok := d.GetOk("title"); ok {
 		trg.Title = v.(string)
 	}
@@ -162,6 +174,10 @@ func unmarshalTrigger(d identifiableGetterSetter) (client.Trigger, error) {
 
 	if v, ok := d.GetOk("description"); ok {
 		trg.Description = v.(string)
+	}
+
+	if v, ok := d.GetOk("category_id"); ok {
+		trg.CategoryID = v.(string)
 	}
 
 	if v, ok := d.GetOk("all"); ok {

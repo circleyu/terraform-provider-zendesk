@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	client "github.com/nukosuke/go-zendesk/zendesk"
+	newClient "github.com/nukosuke/terraform-provider-zendesk/zendesk/client"
 )
 
 // https://developer.zendesk.com/rest_api/docs/support/groups
@@ -14,19 +15,19 @@ func resourceZendeskGroup() *schema.Resource {
 	return &schema.Resource{
 		Description: "Provides a group resource.",
 		CreateContext: func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-			zd := meta.(*client.Client)
+			zd := meta.(*newClient.Client)
 			return createGroup(ctx, d, zd)
 		},
 		ReadContext: func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-			zd := meta.(*client.Client)
+			zd := meta.(*newClient.Client)
 			return readGroup(ctx, d, zd)
 		},
 		UpdateContext: func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-			zd := meta.(*client.Client)
+			zd := meta.(*newClient.Client)
 			return updateGroup(ctx, d, zd)
 		},
 		DeleteContext: func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-			zd := meta.(*client.Client)
+			zd := meta.(*newClient.Client)
 			return deleteGroup(ctx, d, zd)
 		},
 		Importer: &schema.ResourceImporter{

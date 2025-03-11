@@ -67,7 +67,7 @@ func resourceZendeskAutomation() *schema.Resource {
 							Required:    true,
 						},
 						"value": {
-							Description: "The new value of the field.",
+							Description: "The new value of the field. Can be a single string value or a jsonencode'ed list",
 							Type:        schema.TypeString,
 							Required:    true,
 						},
@@ -150,6 +150,10 @@ func unmarshalAutomation(d identifiableGetterSetter) (client.Automation, error) 
 
 	if v, ok := d.GetOk("title"); ok {
 		automation.Title = v.(string)
+	}
+
+	if v, ok := d.GetOk("position"); ok {
+		automation.Position = int64(v.(int))
 	}
 
 	if v, ok := d.GetOk("active"); ok {

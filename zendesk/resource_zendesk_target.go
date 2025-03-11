@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	client "github.com/nukosuke/go-zendesk/zendesk"
+	newClient "github.com/nukosuke/terraform-provider-zendesk/zendesk/client"
 )
 
 // https://developer.zendesk.com/rest_api/docs/support/targets
@@ -15,19 +16,19 @@ func resourceZendeskTarget() *schema.Resource {
 	return &schema.Resource{
 		Description: `Provides a target resource. (HTTP target is deprecated. See https://support.zendesk.com/hc/en-us/articles/4408826284698 for details.)`,
 		CreateContext: func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-			zd := meta.(*client.Client)
+			zd := meta.(*newClient.Client)
 			return createTarget(ctx, d, zd)
 		},
 		ReadContext: func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-			zd := meta.(*client.Client)
+			zd := meta.(*newClient.Client)
 			return readTarget(ctx, d, zd)
 		},
 		UpdateContext: func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-			zd := meta.(*client.Client)
+			zd := meta.(*newClient.Client)
 			return updateTarget(ctx, d, zd)
 		},
 		DeleteContext: func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-			zd := meta.(*client.Client)
+			zd := meta.(*newClient.Client)
 			return deleteTarget(ctx, d, zd)
 		},
 		Importer: &schema.ResourceImporter{

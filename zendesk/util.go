@@ -1,6 +1,7 @@
 package zendesk
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"strconv"
@@ -104,4 +105,15 @@ func setSchemaFields(d setter, m map[string]interface{}) error {
 
 func atoi64(anum string) (int64, error) {
 	return strconv.ParseInt(anum, 10, 64)
+}
+
+func debugLog(jsonableData interface{}, desc string) error {
+	marshaled, err := json.MarshalIndent(jsonableData, "", "   ")
+	if err != nil {
+		return err
+	}
+	fmt.Printf("### LOG %s START ###\n", desc)
+	fmt.Println(string(marshaled))
+	fmt.Printf("### LOG %s END ###\n", desc)
+	return nil
 }

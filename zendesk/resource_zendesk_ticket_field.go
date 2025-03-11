@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	client "github.com/nukosuke/go-zendesk/zendesk"
+	newClient "github.com/nukosuke/terraform-provider-zendesk/zendesk/client"
 )
 
 // https://developer.zendesk.com/rest_api/docs/core/ticket_fields
@@ -136,8 +137,8 @@ func resourceZendeskTicketField() *schema.Resource {
 			},
 			// https://developer.zendesk.com/api-reference/ticketing/tickets/ticket_fields/#updating-drop-down-field-options
 			"custom_field_option": {
-				Description: `Required and presented for a custom ticket field of type "multiselect" or "tagger".`,
-				Type:        schema.TypeSet,
+				Description: `Required and presented for a custom ticket field of type "multiselect" or "tagger". Order is preserved from the way the custom_field_options are configured, however please pass "id" field, if you need to change order of items after creation, otherwise the update will replace name, value for the id in the same position, resulting in wrong field option wherever it is used.`,
+				Type:        schema.TypeList,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
@@ -146,13 +147,13 @@ func resourceZendeskTicketField() *schema.Resource {
 							Required:    true,
 						},
 						"value": {
-							Description: "Custom field option value.",
 							Type:        schema.TypeString,
 							Required:    true,
 						},
 						"id": {
 							Description: "Custom field option id.",
 							Type:        schema.TypeInt,
+							Optional:    true,
 							Computed:    true,
 						},
 					},
@@ -317,7 +318,7 @@ func unmarshalTicketField(d identifiableGetterSetter) (client.TicketField, error
 	}
 
 	if v, ok := d.GetOk("custom_field_option"); ok {
-		options := v.(*schema.Set).List()
+		options := v.([]interface{})
 		customFieldOptions := make([]client.CustomFieldOption, 0)
 		for _, o := range options {
 			option, ok := o.(map[string]interface{})
@@ -357,7 +358,7 @@ func unmarshalTicketField(d identifiableGetterSetter) (client.TicketField, error
 }
 
 func resourceZendeskTicketFieldCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	zd := meta.(*client.Client)
+	zd := meta.(*newClient.Client)
 	return createTicketField(ctx, d, zd)
 }
 
@@ -386,7 +387,7 @@ func createTicketField(ctx context.Context, d identifiableGetterSetter, zd clien
 }
 
 func resourceZendeskTicketFieldRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	zd := meta.(*client.Client)
+	zd := meta.(*newClient.Client)
 	return readTicketField(ctx, d, zd)
 }
 
@@ -412,7 +413,14 @@ func readTicketField(ctx context.Context, d identifiableGetterSetter, zd client.
 }
 
 func resourceZendeskTicketFieldUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	zd := meta.(*client.Client)
+	if hasChange := d.HasChange("type"); hasChange {
+		if hasChange {
+			return diag.FromErr(
+				fmt.Errorf("field is write-once. The 'type' cannot be changed after resource creation"),
+			)
+		}
+	}
+	zd := meta.(*newClient.Client)
 	return updateTicketField(ctx, d, zd)
 }
 
@@ -444,7 +452,7 @@ func updateTicketField(ctx context.Context, d identifiableGetterSetter, zd clien
 }
 
 func resourceZendeskTicketFieldDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	zd := meta.(*client.Client)
+	zd := meta.(*newClient.Client)
 	return deleteTicketField(ctx, d, zd)
 }
 

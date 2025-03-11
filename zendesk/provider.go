@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	client "github.com/nukosuke/go-zendesk/zendesk"
+	newClient "github.com/nukosuke/terraform-provider-zendesk/zendesk/client"
 )
 
 const (
@@ -45,20 +46,29 @@ func Provider() *schema.Provider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"zendesk_automation":   resourceZendeskAutomation(),
-			"zendesk_brand":        resourceZendeskBrand(),
-			"zendesk_group":        resourceZendeskGroup(),
-			"zendesk_ticket_field": resourceZendeskTicketField(),
-			"zendesk_ticket_form":  resourceZendeskTicketForm(),
-			"zendesk_trigger":      resourceZendeskTrigger(),
-			"zendesk_target":       resourceZendeskTarget(),
-			"zendesk_attachment":   resourceZendeskAttachment(),
-			"zendesk_organization": resourceZendeskOrganization(),
-			"zendesk_sla_policy":   resourceZendeskSLAPolicy(),
+			"zendesk_automation":              resourceZendeskAutomation(),
+			"zendesk_brand":                   resourceZendeskBrand(),
+			"zendesk_dynamic_content":         resourceZendeskDynamicContent(),
+			"zendesk_dynamic_content_variant": resourceZendeskDynamicContentVariant(),
+			"zendesk_group":                   resourceZendeskGroup(),
+			"zendesk_ticket_field":            resourceZendeskTicketField(),
+			"zendesk_macro":                   resourceZendeskMacro(),
+			"zendesk_view":                    resourceZendeskView(),
+			"zendesk_user_field":              resourceZendeskUserField(),
+			"zendesk_ticket_form":             resourceZendeskTicketForm(),
+			"zendesk_trigger":                 resourceZendeskTrigger(),
+			"zendesk_trigger_category":        resourceZendeskTriggerCategory(),
+			"zendesk_target":                  resourceZendeskTarget(),
+			"zendesk_attachment":              resourceZendeskAttachment(),
+			"zendesk_organization":            resourceZendeskOrganization(),
+			"zendesk_organization_field":      resourceZendeskOrganizationField(),
+			"zendesk_sla_policy":              resourceZendeskSLAPolicy(),
+			"zendesk_webhook":                 resourceZendeskWebhook(),
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
 			"zendesk_ticket_field": dataSourceZendeskTicketField(),
+			"zendesk_webhook":      dataSourceZendeskWebhook(),
 		},
 
 		ConfigureContextFunc: providerConfigure,
@@ -85,5 +95,8 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	}
 	zd.SetCredential(client.NewAPITokenCredential(config.Email, config.Token))
 
-	return zd, diags
+	newZd := &newClient.Client{
+		Client: *zd,
+	}
+	return newZd, diags
 }
