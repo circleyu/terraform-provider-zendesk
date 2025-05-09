@@ -128,7 +128,7 @@ func resourceZendeskTarget() *schema.Resource {
 
 func marshalTarget(target client.Target, d identifiableGetterSetter) error {
 	fields := map[string]interface{}{
-		"url":    target.URL,
+		// "url":    target.URL,
 		"type":   target.Type,
 		"title":  target.Title,
 		"active": target.Active,
@@ -162,9 +162,9 @@ func unmarshalTarget(d identifiableGetterSetter) (client.Target, error) {
 		target.ID = id
 	}
 
-	if v, ok := d.GetOk("url"); ok {
-		target.URL = v.(string)
-	}
+	// if v, ok := d.GetOk("url"); ok {
+	// 	target.URL = v.(string)
+	// }
 
 	if v, ok := d.GetOk("type"); ok {
 		target.Type = v.(string)
