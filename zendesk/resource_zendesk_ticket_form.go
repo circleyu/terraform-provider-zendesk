@@ -2,13 +2,11 @@ package zendesk
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/nukosuke/terraform-provider-zendesk/zendesk/client"
 	newClient "github.com/nukosuke/terraform-provider-zendesk/zendesk/client"
 	"github.com/nukosuke/terraform-provider-zendesk/zendesk/models"
 )
@@ -315,7 +313,7 @@ func marshalTicketForm(f models.TicketForm, d identifiableGetterSetter) error {
 	return nil
 }
 
-func createTicketForm(ctx context.Context, d identifiableGetterSetter, zd client.TicketFormAPI) diag.Diagnostics {
+func createTicketForm(ctx context.Context, d identifiableGetterSetter, zd newClient.TicketFormAPI) diag.Diagnostics {
 	var diags diag.Diagnostics
 
 	tf, err := unmarshalTicketForm(d)
@@ -340,7 +338,7 @@ func createTicketForm(ctx context.Context, d identifiableGetterSetter, zd client
 	return diags
 }
 
-func readTicketForm(ctx context.Context, d identifiableGetterSetter, zd client.TicketFormAPI) diag.Diagnostics {
+func readTicketForm(ctx context.Context, d identifiableGetterSetter, zd newClient.TicketFormAPI) diag.Diagnostics {
 	var diags diag.Diagnostics
 
 	id, err := atoi64(d.Id())
@@ -361,17 +359,13 @@ func readTicketForm(ctx context.Context, d identifiableGetterSetter, zd client.T
 	return diags
 }
 
-func updateTicketForm(ctx context.Context, d identifiableGetterSetter, zd client.TicketFormAPI) diag.Diagnostics {
+func updateTicketForm(ctx context.Context, d identifiableGetterSetter, zd newClient.TicketFormAPI) diag.Diagnostics {
 	var diags diag.Diagnostics
 
 	tf, err := unmarshalTicketForm(d)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-
-	jsonData, err := json.Marshal(tf)
-	fmt.Println("Update Processed payload: JSON")
-	fmt.Println(string(jsonData))
 
 	tf, err = zd.UpdateTicketForm(ctx, tf.ID, tf)
 	if err != nil {
@@ -386,7 +380,7 @@ func updateTicketForm(ctx context.Context, d identifiableGetterSetter, zd client
 	return diags
 }
 
-func deleteTicketForm(ctx context.Context, d identifiable, zd client.TicketFormAPI) diag.Diagnostics {
+func deleteTicketForm(ctx context.Context, d identifiable, zd newClient.TicketFormAPI) diag.Diagnostics {
 	var diags diag.Diagnostics
 
 	id, err := atoi64(d.Id())

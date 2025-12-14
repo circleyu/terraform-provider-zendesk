@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"reflect"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -66,6 +67,9 @@ func TestMarshalWebhook(t *testing.T) {
 	v, ok = m.GetOk("subscriptions")
 	if !ok {
 		t.Fatal("Failed to get subscriptions value")
+	}
+	if !reflect.DeepEqual(v, expected.Subscriptions) {
+		t.Fatalf("webhook had incorrect subscriptions value %v. should have been %v", v, expected.Subscriptions)
 	}
 }
 

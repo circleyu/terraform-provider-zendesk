@@ -41,9 +41,9 @@ func resourceZendeskAttachment() *schema.Resource {
 		},
 		Schema: map[string]*schema.Schema{
 			"file_path": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: isValidFile(),
+				Type:             schema.TypeString,
+				Required:         true,
+				ValidateDiagFunc: isValidFile(),
 			},
 			"file_name": {
 				Description: "The name of the image file.",

@@ -231,11 +231,6 @@ func split_id(ids string) (int64, int64, error) {
 	return dcv_id, dc_id, err
 }
 
-func join_id(dcv_id int64, dc_id int64) string {
-	ids := fmt.Sprintf("%d+%d", dcv_id, dc_id)
-	return ids
-}
-
 func deleteDynamicContentVariant(ctx context.Context, d identifiableGetterSetter, zd *newClient.Client) diag.Diagnostics {
 	var diags diag.Diagnostics
 
@@ -259,10 +254,9 @@ func Create(ctx context.Context, z *newClient.Client, field DynamicContentVarian
 
 	result.DynamicContentVariant = field
 
-	jsonData, err := json.Marshal(result)
 	fmt.Println("Create Payload: => ")
-	fmt.Println(string(jsonData))
-	fmt.Printf("%d dc_id", field.DynamicContentItemID)
+	fmt.Printf("%+v\n", result)
+	fmt.Printf("%d dc_id\n", field.DynamicContentItemID)
 
 	body, err := z.Post(ctx, fmt.Sprintf("/dynamic_content/items/%d/variants.json", field.DynamicContentItemID), result)
 
@@ -309,9 +303,8 @@ func Update(ctx context.Context, z *newClient.Client, ticketID int64, field Dyna
 
 	result.DynamicContentVariant = field
 
-	jsonData, err := json.Marshal(result)
 	fmt.Println("Update Processed payload: JSON")
-	fmt.Println(string(jsonData))
+	fmt.Printf("%+v\n", result)
 
 	body, err := z.Put(ctx, fmt.Sprintf("/dynamic_content/items/%d/variants/%d.json", field.DynamicContentItemID, ticketID), result)
 	fmt.Println("Update bar")
@@ -319,7 +312,7 @@ func Update(ctx context.Context, z *newClient.Client, ticketID int64, field Dyna
 
 	if err != nil {
 		fmt.Println("Printing Error")
-		fmt.Println(fmt.Sprintf("%+v\n", err))
+		fmt.Printf("%+v\n", err)
 		return DynamicContentVariant{}, err
 	}
 

@@ -128,10 +128,7 @@ func marshalViews(field models.View, d identifiableGetterSetter) error {
 	if field.Restriction == nil {
 		fields["restrictions"] = nil
 	} else {
-		var restrictions []int
-		for _, col := range field.Restriction.IDs {
-			restrictions = append(restrictions, col)
-		}
+		restrictions := append([]int{}, field.Restriction.IDs...)
 		fields["restrictions"] = restrictions
 	}
 

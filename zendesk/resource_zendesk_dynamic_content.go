@@ -2,7 +2,6 @@ package zendesk
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -111,10 +110,6 @@ func createDynamicContent(ctx context.Context, d identifiableGetterSetter, zd cl
 	if err != nil {
 		return diag.FromErr(err)
 	}
-
-	jsonData, err := json.Marshal(dc)
-	fmt.Println("Create: => ")
-	fmt.Println(string(jsonData))
 
 	// Actual API Request
 	dc, err = zd.CreateDynamicContentItem(ctx, dc)

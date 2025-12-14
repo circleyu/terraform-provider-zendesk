@@ -2,26 +2,30 @@ package zendesk
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/hashicorp/go-cty/cty"
 )
 
 func TestIsValidFile(t *testing.T) {
 	v := isValidFile()
-	_, errs := v("testdata/street.jpg", "file_path")
-	if len(errs) != 0 {
+	path := cty.GetAttrPath("file_path")
+
+	diags := v("testdata/street.jpg", path)
+	if diags.HasError() {
 		t.Fatalf("is Valid returned an error")
 	}
 
-	_, errs = v("Missing", "file_path")
-	if len(errs) == 0 {
+	diags = v("Missing", path)
+	if !diags.HasError() {
 		t.Fatalf("is Valid did not return an error for missing file")
 	}
 
-	_, errs = v("testdata", "file_path")
-	if len(errs) == 0 {
+	diags = v("testdata", path)
+	if !diags.HasError() {
 		t.Fatalf("is Valid did not return an error for a directory")
 	}
 }
@@ -33,7 +37,7 @@ func readExampleConfig(t *testing.T, filename string) string {
 	}
 
 	filepath := filepath.Join(dir, filename)
-	bytes, err := ioutil.ReadFile(filepath)
+	bytes, err := os.ReadFile(filepath)
 	if err != nil {
 		t.Fatalf("Failed to read fixture. %v", err)
 	}

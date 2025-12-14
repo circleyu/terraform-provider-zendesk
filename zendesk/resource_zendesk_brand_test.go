@@ -6,7 +6,6 @@ import (
 	"math/rand"
 	"net/http"
 	"testing"
-	"time"
 
 	. "github.com/golang/mock/gomock"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -160,7 +159,6 @@ func testBrandDestroyed(s *terraform.State) error {
 }
 
 func TestAccZendeskBrand(t *testing.T) {
-	rand.Seed(time.Now().UTC().UnixNano())
 	n := rand.Int31n(199) + 801
 	config := fmt.Sprintf(brandConfig, n, n)
 

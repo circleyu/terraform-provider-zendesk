@@ -6,6 +6,8 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/hashicorp/go-cty/cty"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -69,27 +71,55 @@ func (i *identifiableMapGetterSetter) SetId(id string) {
 	i.id = id
 }
 
-func isValidFile() schema.SchemaValidateFunc {
-	return func(i interface{}, key string) (strings []string, errs []error) {
+func isValidFile() schema.SchemaValidateDiagFunc {
+	return func(i interface{}, path cty.Path) diag.Diagnostics {
+		var diags diag.Diagnostics
+
 		v, ok := i.(string)
 		if !ok {
-			errs = append(errs, fmt.Errorf("expected type of %s to be string", key))
-			return
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  "Invalid value type",
+				Detail:   fmt.Sprintf("expected type of %s to be string", pathString(path)),
+			})
+			return diags
 		}
 
 		f, err := os.Stat(v)
 		if err != nil {
-			errs = append(errs, err)
-			return
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  "File not found",
+				Detail:   err.Error(),
+			})
+			return diags
 		}
 
 		if f.IsDir() {
-			errs = append(errs, fmt.Errorf("%s: %s is a directory", key, v))
-			return
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  "Invalid file path",
+				Detail:   fmt.Sprintf("%s: %s is a directory", pathString(path), v),
+			})
+			return diags
 		}
 
-		return
+		return diags
 	}
+}
+
+func pathString(path cty.Path) string {
+	if len(path) == 0 {
+		return "value"
+	}
+	// Simple conversion - just use the last step
+	if len(path) > 0 {
+		lastStep := path[len(path)-1]
+		if attrStep, ok := lastStep.(cty.GetAttrStep); ok {
+			return attrStep.Name
+		}
+	}
+	return "value"
 }
 
 func setSchemaFields(d setter, m map[string]interface{}) error {
