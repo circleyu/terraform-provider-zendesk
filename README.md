@@ -27,7 +27,7 @@ make plan/apply
 
 Terraform provider for Zendesk
 
-- [Document](https://registry.terraform.io/providers/clearnote01/zendesk/latest/docs)
+- [Document](https://registry.terraform.io/providers/circleyu/zendesk/latest/docs)
 
 ## Requirements
 
@@ -43,7 +43,7 @@ Instead configure provider as follow.
 terraform {
   required_providers {
     zendesk = {
-      source  = "clearnote01/zendesk"
+      source  = "circleyu/zendesk"
       version = ">= 0.0.2"
     }
   }

@@ -22,8 +22,8 @@ description: |-
 terraform {
   required_providers {
     zendesk = {
-      source  = "nukosuke/zendesk"
-      version = ">= 0.0"
+      source  = "circleyu/zendesk"
+      version = ">= 0.0.2"
     }
   }
 }
