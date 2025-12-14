@@ -5,25 +5,66 @@ import (
 	"fmt"
 	"testing"
 
-	. "github.com/golang/mock/gomock"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/nukosuke/go-zendesk/zendesk"
-	"github.com/nukosuke/go-zendesk/zendesk/mock"
+	"github.com/nukosuke/terraform-provider-zendesk/zendesk/client"
+	"github.com/nukosuke/terraform-provider-zendesk/zendesk/models"
 )
 
-func TestCreateTicketForm(t *testing.T) {
-	ctrl := NewController(t)
-	defer ctrl.Finish()
+// mockTicketFormAPI is a mock implementation of client.TicketFormAPI
+type mockTicketFormAPI struct {
+	createTicketForm func(ctx context.Context, ticketForm models.TicketForm) (models.TicketForm, error)
+	getTicketForm    func(ctx context.Context, id int64) (models.TicketForm, error)
+	deleteTicketForm func(ctx context.Context, id int64) error
+	updateTicketForm func(ctx context.Context, id int64, form models.TicketForm) (models.TicketForm, error)
+}
 
-	m := mock.NewClient(ctrl)
+func (m *mockTicketFormAPI) CreateTicketForm(ctx context.Context, ticketForm models.TicketForm) (models.TicketForm, error) {
+	if m.createTicketForm != nil {
+		return m.createTicketForm(ctx, ticketForm)
+	}
+	return models.TicketForm{}, nil
+}
+
+func (m *mockTicketFormAPI) GetTicketForm(ctx context.Context, id int64) (models.TicketForm, error) {
+	if m.getTicketForm != nil {
+		return m.getTicketForm(ctx, id)
+	}
+	return models.TicketForm{}, nil
+}
+
+func (m *mockTicketFormAPI) DeleteTicketForm(ctx context.Context, id int64) error {
+	if m.deleteTicketForm != nil {
+		return m.deleteTicketForm(ctx, id)
+	}
+	return nil
+}
+
+func (m *mockTicketFormAPI) UpdateTicketForm(ctx context.Context, id int64, form models.TicketForm) (models.TicketForm, error) {
+	if m.updateTicketForm != nil {
+		return m.updateTicketForm(ctx, id, form)
+	}
+	return models.TicketForm{}, nil
+}
+
+func (m *mockTicketFormAPI) GetTicketForms(ctx context.Context, options *zendesk.TicketFormListOptions) ([]models.TicketForm, zendesk.Page, error) {
+	return nil, zendesk.Page{}, nil
+}
+
+func TestCreateTicketForm(t *testing.T) {
 	i := newIdentifiableGetterSetter()
-	out := zendesk.TicketForm{
+	out := models.TicketForm{
 		ID:   12345,
 		Name: "foo",
 	}
 
-	m.EXPECT().CreateTicketForm(Any(), Any()).Return(out, nil)
+	m := &mockTicketFormAPI{
+		createTicketForm: func(ctx context.Context, ticketForm models.TicketForm) (models.TicketForm, error) {
+			return out, nil
+		},
+	}
+
 	if diags := createTicketForm(context.Background(), i, m); len(diags) != 0 {
 		t.Fatal("create ticket field returned an error")
 	}
@@ -38,33 +79,41 @@ func TestCreateTicketForm(t *testing.T) {
 }
 
 func TestDeleteTicketForm(t *testing.T) {
-	ctrl := NewController(t)
-	defer ctrl.Finish()
-
-	m := mock.NewClient(ctrl)
 	i := newIdentifiableGetterSetter()
 	i.SetId("12345")
 
-	expectedID := int64(12345)
-	m.EXPECT().DeleteTicketForm(Any(), Eq(expectedID)).Return(nil)
+	m := &mockTicketFormAPI{
+		deleteTicketForm: func(ctx context.Context, id int64) error {
+			if id != 12345 {
+				t.Fatalf("Expected ID 12345, got %d", id)
+			}
+			return nil
+		},
+	}
+
 	if diags := deleteTicketForm(context.Background(), i, m); len(diags) != 0 {
 		t.Fatal("create ticket field returned an error")
 	}
 }
 
 func TestReadTicketForm(t *testing.T) {
-	ctrl := NewController(t)
-	defer ctrl.Finish()
-
-	m := mock.NewClient(ctrl)
 	i := newIdentifiableGetterSetter()
 	i.SetId("12345")
 
-	expected := zendesk.TicketForm{
+	expected := models.TicketForm{
 		Name:     "foobar",
 		Position: int64(1),
 	}
-	m.EXPECT().GetTicketForm(Any(), Eq(int64(12345))).Return(expected, nil)
+
+	m := &mockTicketFormAPI{
+		getTicketForm: func(ctx context.Context, id int64) (models.TicketForm, error) {
+			if id != 12345 {
+				t.Fatalf("Expected ID 12345, got %d", id)
+			}
+			return expected, nil
+		},
+	}
+
 	if diags := readTicketForm(context.Background(), i, m); len(diags) != 0 {
 		t.Fatalf("recieved an error when calling read ticket form: %v", diags)
 	}
@@ -97,7 +146,7 @@ func TestUnmarshalTicketForm(t *testing.T) {
 }
 
 func testTicketFormDestroyed(s *terraform.State) error {
-	client := testAccProvider.Meta().(zendesk.TicketFormAPI)
+	client := testAccProvider.Meta().(client.TicketFormAPI)
 
 	for k, r := range s.RootModule().Resources {
 		if r.Type != "zendesk_ticket_form" {

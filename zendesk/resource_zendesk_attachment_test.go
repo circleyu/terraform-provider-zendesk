@@ -5,12 +5,12 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"testing"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	. "github.com/golang/mock/gomock"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -38,7 +38,7 @@ func (w mockUploadWriter) Close() (zendesk.Upload, error) {
 
 func newMockUploadWriter(u zendesk.Upload, err error) zendesk.UploadWriter {
 	return mockUploadWriter{
-		Writer:   ioutil.Discard,
+		Writer:   io.Discard,
 		Response: u,
 		Error:    err,
 	}
@@ -157,7 +157,7 @@ func TestAccZendeskAttachment(t *testing.T) {
 	h := sha1.New()
 	tee := io.TeeReader(original, h)
 
-	tmpfile, err := ioutil.TempFile("", "new-streets.jpg")
+	tmpfile, err := os.CreateTemp("", "new-streets.jpg")
 	if err != nil {
 		t.Fatalf("could not create temp file")
 	}

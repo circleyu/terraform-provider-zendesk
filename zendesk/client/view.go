@@ -116,7 +116,7 @@ func (z *Client) UpdateView(ctx context.Context, id int64, view models.View) (mo
 
 	if err != nil {
 		fmt.Println("Printing Error")
-		fmt.Println(fmt.Sprintf("%+v\n", err))
+		fmt.Printf("%+v\n", err)
 		return models.View{}, err
 	}
 
