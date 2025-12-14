@@ -7,6 +7,10 @@
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fnukosuke%2Fterraform-provider-zendesk.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fnukosuke%2Fterraform-provider-zendesk?ref=badge_shield)
 
 # circleyu Additions
+14.12.25 - Added support for new Zendesk resources and data sources:
+  - Resources: Custom Roles, Custom Statuses, Users, Tickets, Queues, Group Memberships, Organization Memberships
+  - Data Sources: Tags, Locales, Satisfaction Ratings
+  - Fix linter warnings and update deprecated APIs (rand.Seed, io/ioutil, SchemaValidateFunc)
 09.05.25 - Fix the error in the Target update.
 
 # clearnote01 Additions
