@@ -24,7 +24,7 @@ func dataSourceZendeskTags() *schema.Resource {
 				},
 				Description: "List of tag names",
 			},
-			"count": {
+			"total_count": {
 				Type:        schema.TypeInt,
 				Computed:    true,
 				Description: "Total count of tags",
@@ -53,8 +53,7 @@ func readTagsDataSource(ctx context.Context, d *schema.ResourceData, zd *newClie
 
 	d.SetId("tags")
 	d.Set("tags", tagNames)
-	d.Set("count", int(count))
+	d.Set("total_count", int(count))
 
 	return diags
 }
-

@@ -69,7 +69,7 @@ func dataSourceZendeskSatisfactionRatings() *schema.Resource {
 				},
 				Description: "List of satisfaction ratings",
 			},
-			"count": {
+			"total_count": {
 				Type:        schema.TypeInt,
 				Computed:    true,
 				Description: "Total count of satisfaction ratings",
@@ -110,8 +110,7 @@ func readSatisfactionRatingsDataSource(ctx context.Context, d *schema.ResourceDa
 
 	d.SetId("satisfaction_ratings")
 	d.Set("satisfaction_ratings", ratingList)
-	d.Set("count", int(count))
+	d.Set("total_count", int(count))
 
 	return diags
 }
-
