@@ -20,3 +20,8 @@ vendor
 .idea
 *.iml
 .pre-commit-config.yaml
+
+# GPG keys (never commit private keys!)
+gpg-keys/
+*.gpg
+!gpg-keys/.gitkeep

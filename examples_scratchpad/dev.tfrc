@@ -1,5 +1,5 @@
 provider_installation {
   dev_overrides {
-    "nukosuke/zendesk" = "build/"
+    "circleyu/zendesk" = "build/"
   }
 }

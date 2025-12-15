@@ -7,7 +7,7 @@
 terraform {
   required_providers {
     zendesk = {
-      source  = "nukosuke/zendesk"
+      source  = "circleyu/zendesk"
       version = ">= 0.0"
     }
   }
